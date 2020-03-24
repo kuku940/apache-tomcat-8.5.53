@@ -175,6 +175,7 @@ public interface Lifecycle {
 
     /**
      * Add a LifecycleEvent listener to this component.
+     * 注册LifecycleListener
      *
      * @param listener The listener to add
      */
@@ -183,10 +184,11 @@ public interface Lifecycle {
 
     /**
      * Get the life cycle listeners associated with this life cycle.
+     * 获取所有注册的LifecycleListener
      *
      * @return An array containing the life cycle listeners associated with this
-     *         life cycle. If this component has no listeners registered, a
-     *         zero-length array is returned.
+     * life cycle. If this component has no listeners registered, a
+     * zero-length array is returned.
      */
     public LifecycleListener[] findLifecycleListeners();
 
@@ -207,9 +209,10 @@ public interface Lifecycle {
      *   <li>INIT_EVENT: On the successful completion of component
      *                   initialization.</li>
      * </ol>
+     * 组件被实例化之后，调用该方法完成初始化工作
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that prevents this component from being used
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that prevents this component from being used
      */
     public void init() throws LifecycleException;
 
@@ -235,9 +238,10 @@ public interface Lifecycle {
      *                          transitions to {@link LifecycleState#STARTED}.
      *                          </li>
      * </ol>
+     * 在组件投入使用之前调用该方法
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that prevents this component from being used
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that prevents this component from being used
      */
     public void start() throws LifecycleException;
 
@@ -263,15 +267,16 @@ public interface Lifecycle {
      *                         transitions to {@link LifecycleState#STOPPED}.
      *                         </li>
      * </ol>
-     *
+     * <p>
      * Note that if transitioning from {@link LifecycleState#FAILED} then the
      * three events above will be fired but the component will transition
      * directly from {@link LifecycleState#FAILED} to
      * {@link LifecycleState#STOPPING}, bypassing
      * {@link LifecycleState#STOPPING_PREP}
+     * 使组件停止工作
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that needs to be reported
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that needs to be reported
      */
     public void stop() throws LifecycleException;
 
@@ -282,9 +287,10 @@ public interface Lifecycle {
      *   <li>DESTROY_EVENT: On the successful completion of component
      *                      destruction.</li>
      * </ol>
+     * 销毁组件时被调用
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that prevents this component from being used
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that prevents this component from being used
      */
     public void destroy() throws LifecycleException;
 
