@@ -17,32 +17,43 @@
 
 package org.apache.catalina.util;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.catalina.Globals;
 import org.apache.catalina.JmxEnabled;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.connector.Connector;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.modeler.Registry;
 import org.apache.tomcat.util.res.StringManager;
 
+import javax.management.*;
+
+/**
+ * 完成jmx注册的主要逻辑，重写了LifecycleBase的initIternal、destroyInternal方法，用于完成jmx的注册和注销
+ * <p>
+ * 所以为了保证jmx的正常注册和销毁，子类覆写时必须先调用父类的方法{@link Connector#initInternal()}
+ */
 public abstract class LifecycleMBeanBase extends LifecycleBase
         implements JmxEnabled {
 
     private static final Log log = LogFactory.getLog(LifecycleMBeanBase.class);
 
     private static final StringManager sm =
-        StringManager.getManager("org.apache.catalina.util");
+            StringManager.getManager("org.apache.catalina.util");
 
 
     /* Cache components of the MBean registration. */
+    /**
+     * jmx的域，默认使用Service的name，即"Catalina"
+     */
     private String domain = null;
+    /**
+     * 用于标识一个MBean的对象名称，也可以根据这个name来查找MBean
+     */
     private ObjectName oname = null;
+    /**
+     * jmx的核心组件，提供代理端操作MBean的接口，提供了创建、注册、删除MBean的接口，它由MBeanServerFactory创建
+     */
     protected MBeanServer mserver = null;
 
     /**
@@ -106,7 +117,7 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
      * Method implemented by sub-classes to identify the domain in which MBeans
      * should be registered.
      *
-     * @return  The name of the domain to use to register MBeans.
+     * @return The name of the domain to use to register MBeans.
      */
     protected abstract String getDomainInternal();
 
@@ -124,8 +135,8 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
      * Allow sub-classes to specify the key properties component of the
      * {@link ObjectName} that will be used to register this component.
      *
-     * @return  The string representation of the key properties component of the
-     *          desired {@link ObjectName}
+     * @return The string representation of the key properties component of the
+     * desired {@link ObjectName}
      */
     protected abstract String getObjectNameKeyProperties();
 
@@ -137,15 +148,14 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
      * Note: This method should only be used once {@link #initInternal()} has
      * been called and before {@link #destroyInternal()} has been called.
      *
-     * @param obj                       The object the register
-     * @param objectNameKeyProperties   The key properties component of the
-     *                                  object name to use to register the
-     *                                  object
-     *
-     * @return  The name used to register the object
+     * @param obj                     The object the register
+     * @param objectNameKeyProperties The key properties component of the
+     *                                object name to use to register the
+     *                                object
+     * @return The name used to register the object
      */
     protected final ObjectName register(Object obj,
-            String objectNameKeyProperties) {
+                                        String objectNameKeyProperties) {
 
         // Construct an object name with the right domain
         StringBuilder name = new StringBuilder(getDomain());
@@ -176,7 +186,7 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
      * Note: This method should only be used once {@link #initInternal()} has
      * been called and before {@link #destroyInternal()} has been called.
      *
-     * @param on    The name of the component to unregister
+     * @param on The name of the component to unregister
      */
     protected final void unregister(ObjectName on) {
 
