@@ -16,25 +16,17 @@
  */
 package org.apache.catalina.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.ObjectName;
-
-import org.apache.catalina.Contained;
-import org.apache.catalina.Container;
-import org.apache.catalina.JmxEnabled;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Pipeline;
-import org.apache.catalina.Valve;
+import org.apache.catalina.*;
 import org.apache.catalina.util.LifecycleBase;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
+
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Standard implementation of a processing <b>Pipeline</b> that will invoke
@@ -167,6 +159,13 @@ public class StandardPipeline extends LifecycleBase
     protected synchronized void startInternal() throws LifecycleException {
 
         // Start the Valves in our pipeline (including the basic), if any
+        /**
+         * 遍历Valve链表，如果Valve是Lifecycle的子类，则会调用start启动Valve组件
+         * tomcat提供了一系列的Valve：
+         * AccessLogValve - 记录请求日志，默认开启；
+         * RemoteAddrValve - 可以访问控制，比如限制IP黑白名单；
+         * RemoteIpValve - 主要用于处理X-Forwarded-For请求头，用来识别通过HTTP代理或负载均衡方式连接到Web服务器的客户端最原始的IP地址的HTTP请求头字段
+         */
         Valve current = first;
         if (current == null) {
             current = basic;

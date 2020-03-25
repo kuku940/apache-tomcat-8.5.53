@@ -16,32 +16,19 @@
  */
 package org.apache.catalina.core;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.catalina.AccessLog;
-import org.apache.catalina.Container;
-import org.apache.catalina.ContainerEvent;
-import org.apache.catalina.ContainerListener;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.Realm;
-import org.apache.catalina.Server;
-import org.apache.catalina.Service;
+import org.apache.catalina.*;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.realm.NullRealm;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Standard implementation of the <b>Engine</b> interface.  Each
@@ -68,7 +55,7 @@ public class StandardEngine extends ContainerBase implements Engine {
         /* Set the jmvRoute using the system property jvmRoute */
         try {
             setJvmRoute(System.getProperty("jvmRoute"));
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             log.warn(sm.getString("standardEngine.jvmRouteFail"));
         }
         // By default, the engine will hold the reloading thread
@@ -103,7 +90,7 @@ public class StandardEngine extends ContainerBase implements Engine {
      * the intended host and context.
      */
     private final AtomicReference<AccessLog> defaultAccessLog =
-        new AtomicReference<>();
+            new AtomicReference<>();
 
     // ------------------------------------------------------------- Properties
 
@@ -150,7 +137,7 @@ public class StandardEngine extends ContainerBase implements Engine {
             this.defaultHost = host.toLowerCase(Locale.ENGLISH);
         }
         support.firePropertyChange("defaultHost", oldDefaultHost,
-                                   this.defaultHost);
+                this.defaultHost);
 
     }
 
@@ -210,7 +197,7 @@ public class StandardEngine extends ContainerBase implements Engine {
 
         if (!(child instanceof Host))
             throw new IllegalArgumentException
-                (sm.getString("standardEngine.notHost"));
+                    (sm.getString("standardEngine.notHost"));
         super.addChild(child);
 
     }
@@ -226,15 +213,24 @@ public class StandardEngine extends ContainerBase implements Engine {
     public void setParent(Container container) {
 
         throw new IllegalArgumentException
-            (sm.getString("standardEngine.notParent"));
+                (sm.getString("standardEngine.notParent"));
 
     }
 
-
+    /**
+     * StandardEngine作为顶层容器，它的直接子容器是StandardHost，但是它并没有对子容器StardandHost进行初始化操作，
+     * 而是把初始化过程放在start阶段。Host、Context、Wrapper等容器和具体的webapp应用相关联了，初始化过程会更加耗时，
+     * 因此在start阶段用多线程完成初始化以及start生命周期，
+     * 否则，像顶层的Server、Service等组件需要等待Host、Context、Wrapper完成初始化才能结束初始化流程
+     */
     @Override
     protected void initInternal() throws LifecycleException {
         // Ensure that a Realm is present before any attempt is made to start
         // one. This will create the default NullRealm if necessary.
+        /**
+         * 获取Realm(域)是用于对单个用户进行身份验证的底层安全领域的只读外观，并标识与这些用户相关联的安全角色。
+         * 域可以在任何容器级别上附加，但是通常只附加到Context，或者更高级别的容器。
+         */
         getRealm();
         super.initInternal();
     }
@@ -244,15 +240,15 @@ public class StandardEngine extends ContainerBase implements Engine {
      * Start this component and implement the requirements
      * of {@link org.apache.catalina.util.LifecycleBase#startInternal()}.
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that prevents this component from being used
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that prevents this component from being used
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
 
         // Log our server identification information
-        if(log.isInfoEnabled())
-            log.info( "Starting Servlet Engine: " + ServerInfo.getServerInfo());
+        if (log.isInfoEnabled())
+            log.info("Starting Servlet Engine: " + ServerInfo.getServerInfo());
 
         // Standard container startup
         super.startInternal();
@@ -267,7 +263,7 @@ public class StandardEngine extends ContainerBase implements Engine {
      */
     @Override
     public void logAccess(Request request, Response response, long time,
-            boolean useDefault) {
+                          boolean useDefault) {
 
         boolean logged = false;
 
@@ -419,7 +415,7 @@ public class StandardEngine extends ContainerBase implements Engine {
         private volatile boolean disabled = false;
 
         public AccessLogListener(StandardEngine engine, Host host,
-                Context context) {
+                                 Context context) {
             this.engine = engine;
             this.host = host;
             this.context = context;

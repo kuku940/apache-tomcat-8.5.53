@@ -16,12 +16,11 @@
  */
 package org.apache.catalina;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
 
 /**
  * <p>A <b>Valve</b> is a request processing component associated with a
@@ -32,6 +31,8 @@ import org.apache.catalina.connector.Response;
  * <b>HISTORICAL NOTE</b>:  The "Valve" name was assigned to this concept
  * because a valve is what you use in a real world pipeline to control and/or
  * modify flows through it.
+ *
+ * Valve 是阀门组件，穿插在 Container 容器中，可以把它理解成请求拦截器，在 tomcat 接收到网络请求与触发 Servlet 之间执行
  *
  * @author Craig R. McClanahan
  * @author Gunnar Rjnning

@@ -16,35 +16,19 @@
  */
 package org.apache.catalina.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.regex.Pattern;
-
-import javax.management.ObjectName;
-
-import org.apache.catalina.Container;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Globals;
-import org.apache.catalina.Host;
-import org.apache.catalina.JmxEnabled;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.Valve;
+import org.apache.catalina.*;
 import org.apache.catalina.loader.WebappClassLoaderBase;
 import org.apache.catalina.util.ContextName;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.ExceptionUtils;
+
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
 
 /**
  * Standard implementation of the <b>Host</b> interface.  Each
@@ -110,7 +94,7 @@ public class StandardHost extends ContainerBase implements Host {
      * for deployed web applications.
      */
     private String configClass =
-        "org.apache.catalina.startup.ContextConfig";
+            "org.apache.catalina.startup.ContextConfig";
 
 
     /**
@@ -118,7 +102,7 @@ public class StandardHost extends ContainerBase implements Host {
      * deployed web applications.
      */
     private String contextClass =
-        "org.apache.catalina.core.StandardContext";
+            "org.apache.catalina.core.StandardContext";
 
 
     /**
@@ -146,7 +130,7 @@ public class StandardHost extends ContainerBase implements Host {
      * for deployed web applications.
      */
     private String errorReportValveClass =
-        "org.apache.catalina.valves.ErrorReportValve";
+            "org.apache.catalina.valves.ErrorReportValve";
 
 
     /**
@@ -295,7 +279,7 @@ public class StandardHost extends ContainerBase implements Host {
             return hostConfigBase;
         }
         String path = null;
-        if (getXmlBase()!=null) {
+        if (getXmlBase() != null) {
             path = getXmlBase();
         } else {
             StringBuilder xmlDir = new StringBuilder("conf");
@@ -331,6 +315,7 @@ public class StandardHost extends ContainerBase implements Host {
 
     /**
      * Set to <code>true</code> if the Host should attempt to create directories for xmlBase and appBase upon startup
+     *
      * @param createDirs the new flag value
      */
     @Override
@@ -359,7 +344,7 @@ public class StandardHost extends ContainerBase implements Host {
         boolean oldAutoDeploy = this.autoDeploy;
         this.autoDeploy = autoDeploy;
         support.firePropertyChange("autoDeploy", oldAutoDeploy,
-                                   this.autoDeploy);
+                this.autoDeploy);
 
     }
 
@@ -386,7 +371,7 @@ public class StandardHost extends ContainerBase implements Host {
         String oldConfigClass = this.configClass;
         this.configClass = configClass;
         support.firePropertyChange("configClass",
-                                   oldConfigClass, this.configClass);
+                oldConfigClass, this.configClass);
 
     }
 
@@ -411,7 +396,7 @@ public class StandardHost extends ContainerBase implements Host {
         String oldContextClass = this.contextClass;
         this.contextClass = contextClass;
         support.firePropertyChange("contextClass",
-                                   oldContextClass, this.contextClass);
+                oldContextClass, this.contextClass);
 
     }
 
@@ -438,7 +423,7 @@ public class StandardHost extends ContainerBase implements Host {
         boolean oldDeployOnStartup = this.deployOnStartup;
         this.deployOnStartup = deployOnStartup;
         support.firePropertyChange("deployOnStartup", oldDeployOnStartup,
-                                   this.deployOnStartup);
+                this.deployOnStartup);
 
     }
 
@@ -499,8 +484,8 @@ public class StandardHost extends ContainerBase implements Host {
         String oldErrorReportValveClassClass = this.errorReportValveClass;
         this.errorReportValveClass = errorReportValveClass;
         support.firePropertyChange("errorReportValveClass",
-                                   oldErrorReportValveClassClass,
-                                   this.errorReportValveClass);
+                oldErrorReportValveClassClass,
+                this.errorReportValveClass);
 
     }
 
@@ -520,15 +505,14 @@ public class StandardHost extends ContainerBase implements Host {
      * this Container represents.
      *
      * @param name Virtual host name
-     *
-     * @exception IllegalArgumentException if name is null
+     * @throws IllegalArgumentException if name is null
      */
     @Override
     public void setName(String name) {
 
         if (name == null)
             throw new IllegalArgumentException
-                (sm.getString("standardHost.nullName"));
+                    (sm.getString("standardHost.nullName"));
 
         name = name.toLowerCase(Locale.ENGLISH);      // Internally all names are lower case
 
@@ -621,8 +605,8 @@ public class StandardHost extends ContainerBase implements Host {
             this.deployIgnore = Pattern.compile(deployIgnore);
         }
         support.firePropertyChange("deployIgnore",
-                                   oldDeployIgnore,
-                                   deployIgnore);
+                oldDeployIgnore,
+                deployIgnore);
     }
 
 
@@ -636,8 +620,9 @@ public class StandardHost extends ContainerBase implements Host {
 
     /**
      * Change the behavior of Servlet startup errors on web application starts.
+     *
      * @param failCtxIfServletStartFails <code>false</code> to ignore errors on Servlets which
-     *    are stated when the web application starts
+     *                                   are stated when the web application starts
      */
     public void setFailCtxIfServletStartFails(
             boolean failCtxIfServletStartFails) {
@@ -690,7 +675,7 @@ public class StandardHost extends ContainerBase implements Host {
 
         if (!(child instanceof Context))
             throw new IllegalArgumentException
-                (sm.getString("standardHost.notContext"));
+                    (sm.getString("standardHost.notContext"));
 
         child.addLifecycleListener(new MemoryLeakTrackingListener());
 
@@ -808,17 +793,19 @@ public class StandardHost extends ContainerBase implements Host {
      * Start this component and implement the requirements
      * of {@link org.apache.catalina.util.LifecycleBase#startInternal()}.
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that prevents this component from being used
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that prevents this component from being used
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
 
         // Set error report valve
+        // errorValve默认使用org.apache.catalina.valves.ErrorReportValve
         String errorValve = getErrorReportValveClass();
         if ((errorValve != null) && (!errorValve.equals(""))) {
             try {
                 boolean found = false;
+                // 如果所有的阀门中已经存在这个实例，则不进行处理，否则添加到Pipeline中
                 Valve[] valves = getPipeline().getValves();
                 for (Valve valve : valves) {
                     if (errorValve.equals(valve.getClass().getName())) {
@@ -826,9 +813,14 @@ public class StandardHost extends ContainerBase implements Host {
                         break;
                     }
                 }
-                if(!found) {
+                /**
+                 * 如果未找到则添加到Pipeline中，注意是添加到basic前 first后，默认情况下：
+                 * first valve 是{@link org.apache.catalina.valves.AccessLogValve}，
+                 * basic valve 是 {@link StandardHostValve}
+                 */
+                if (!found) {
                     Valve valve =
-                        (Valve) Class.forName(errorValve).getConstructor().newInstance();
+                            (Valve) Class.forName(errorValve).getConstructor().newInstance();
                     getPipeline().addValve(valve);
                 }
             } catch (Throwable t) {
@@ -838,19 +830,27 @@ public class StandardHost extends ContainerBase implements Host {
                         errorValve), t);
             }
         }
+        // 调用父类 ContainerBase，完成统一的启动动作
         super.startInternal();
+
+        /**
+         * 在start启动时，StandardHost并没有加载child容器
+         * tomcat在这块使用HostConfig加载子容器，而HostConfig是个LifecycleListener
+         * 它会处理start，stop事件通知，并且会在线程池中启动，停止Context容器
+         * {@link org.apache.catalina.startup.HostConfig#lifecycleEvent(LifecycleEvent)}
+         */
     }
 
 
     // -------------------- JMX  --------------------
+
     /**
      * @return the MBean Names of the Valves associated with this Host
-     *
-     * @exception Exception if an MBean cannot be created or registered
+     * @throws Exception if an MBean cannot be created or registered
      */
     public String[] getValveNames() throws Exception {
-        Valve [] valves = this.getPipeline().getValves();
-        String [] mbeanNames = new String[valves.length];
+        Valve[] valves = this.getPipeline().getValves();
+        String[] mbeanNames = new String[valves.length];
         for (int i = 0; i < valves.length; i++) {
             if (valves[i] instanceof JmxEnabled) {
                 ObjectName oname = ((JmxEnabled) valves[i]).getObjectName();

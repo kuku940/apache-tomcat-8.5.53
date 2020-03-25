@@ -343,7 +343,9 @@ public final class Bootstrap {
         if (catalinaDaemon == null) {
             init();
         }
-
+        /**
+         * 反射调用{@link Catalina#start}
+         */
         Method method = catalinaDaemon.getClass().getMethod("start", (Class[]) null);
         method.invoke(catalinaDaemon, (Object[]) null);
     }

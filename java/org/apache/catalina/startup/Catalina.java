@@ -690,6 +690,9 @@ public class Catalina {
 
         // Start the new server
         try {
+            /**
+             * 调用{@link org.apache.catalina.core.StandardServer#start()}，启动Server组件
+             */
             getServer().start();
         } catch (LifecycleException e) {
             log.fatal(sm.getString("catalina.serverStartFail"), e);
@@ -707,6 +710,7 @@ public class Catalina {
         }
 
         // Register shutdown hook
+        // 注册钩子，用于安全关闭tomcat
         if (useShutdownHook) {
             if (shutdownHook == null) {
                 shutdownHook = new CatalinaShutdownHook();
@@ -722,7 +726,7 @@ public class Catalina {
                         false);
             }
         }
-
+        // Bootstrap中会设置await为true，其目的在于让tomcat在shutdown端口阻塞监听关闭命令
         if (await) {
             await();
             stop();

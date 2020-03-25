@@ -82,6 +82,8 @@ public interface Pipeline {
      *  associated with this Container
      * @exception IllegalStateException if the specified Valve is already
      *  associated with a different Container
+     *
+     *  Valve 是阀门组件，穿插在 Container 容器中，可以把它理解成请求拦截器，在 tomcat 接收到网络请求与触发 Servlet 之间执行
      */
     public void addValve(Valve valve);
 

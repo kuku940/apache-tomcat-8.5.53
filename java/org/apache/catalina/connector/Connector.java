@@ -16,17 +16,6 @@
  */
 package org.apache.catalina.connector;
 
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-
-import javax.management.ObjectName;
-
 import org.apache.catalina.Globals;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
@@ -44,6 +33,16 @@ import org.apache.tomcat.util.buf.B2CConverter;
 import org.apache.tomcat.util.net.SSLHostConfig;
 import org.apache.tomcat.util.net.openssl.OpenSSLImplementation;
 import org.apache.tomcat.util.res.StringManager;
+
+import javax.management.ObjectName;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
 
 
 /**
@@ -995,11 +994,12 @@ public class Connector extends LifecycleMBeanBase  {
 
     @Override
     protected void initInternal() throws LifecycleException {
-
+        // 注册jmx
         super.initInternal();
 
-        // Initialize adapter
+        // 初始化Coyote适配器，用于Coyote的Request、Response与HttpServlet的Request、Response适配的
         adapter = new CoyoteAdapter(this);
+        // protocolHandler需要指定Adapter用于处理请求
         protocolHandler.setAdapter(adapter);
 
         // Make sure parseBodyMethodsSet has a default
@@ -1007,6 +1007,7 @@ public class Connector extends LifecycleMBeanBase  {
             setParseBodyMethods(getParseBodyMethods());
         }
 
+        // Apr支持
         if (protocolHandler.isAprRequired() && !AprLifecycleListener.isInstanceCreated()) {
             throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerNoAprListener",
                     getProtocolHandlerClassName()));
@@ -1027,6 +1028,11 @@ public class Connector extends LifecycleMBeanBase  {
         }
 
         try {
+            // 初始化ProtocolHandler，init不是Lifecycle定义的init，而是ProtocolHandler接口的init
+            /**
+             * ProtocolHandler是个抽象的协议实现，不同于JNI这样的jk协议，它是单线程，基于流的协议
+             * ProtocolHandler是Cycote连接器实现的主要接口，而Adapter适配器是由一个Coyote Servlet容器实现的主要接口，定义了处理请求的抽象接口。
+             */
             protocolHandler.init();
         } catch (Exception e) {
             throw new LifecycleException(
